@@ -1,6 +1,6 @@
 import { existsSync } from "node:fs";
 
-import { type DoriConfig, fill } from "./config.ts";
+import { type RagnaConfig, fill } from "./config.ts";
 import { type Lane, type Registry, statusOf, withStatus } from "./registry.ts";
 import { type Clock, iso, type Runner } from "./run.ts";
 import { sendVerified } from "./panes.ts";
@@ -10,7 +10,7 @@ export type FlowDeps = {
   readonly run: Runner;
   readonly clock: Clock;
   readonly registry: Registry;
-  readonly config: DoriConfig;
+  readonly config: RagnaConfig;
   readonly exists?: (path: string) => boolean;
   readonly signalIo?: SignalIo;
 };

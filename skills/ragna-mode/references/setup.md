@@ -4,7 +4,7 @@ Run these once, in order. Stop and ask the owner wherever a step needs their cho
 
 ## 1. herdr
 
-herdr is the terminal multiplexer the Dori runs in. Every lane is a herdr tab, and herdr lets you read a pane, type into it and see which process runs there.
+herdr is the terminal multiplexer the Ragna runs in. Every lane is a herdr tab, and herdr lets you read a pane, type into it and see which process runs there.
 
 ```sh
 curl -fsSL https://herdr.dev/install.sh | sh
@@ -25,20 +25,20 @@ agent-messenger wraps part of each platform. Read the platform's current bot API
 
 Ask which mode, give the trade-off as a short list, and wait for the choice:
 
-- **User token**: the Dori acts as a real member of the workspace.
+- **User token**: the Ragna acts as a real member of the workspace.
   - It needs a paid seat, which the owner pays for.
   - It reads everything that member can see.
-  - It can keep a green online dot (`dori presence slack`).
-- **Bot token**: the Dori is a Slack app.
+  - It can keep a green online dot (`ragna presence slack`).
+- **Bot token**: the Ragna is a Slack app.
   - There's no seat cost.
   - It only sees channels it is invited to, within the scopes the app was granted.
   - It shows as an app, not a person.
 
-Record the choice. With a user token, set `DORI_SLACK_TOKEN` and `DORI_SLACK_COOKIE` (the `d` cookie from that member's browser session). With a bot token, set `DORI_SLACK_TOKEN` to the `xoxb-` token.
+Record the choice. With a user token, set `RAGNA_SLACK_TOKEN` and `RAGNA_SLACK_COOKIE` (the `d` cookie from that member's browser session). With a bot token, set `RAGNA_SLACK_TOKEN` to the `xoxb-` token.
 
 ## 3. Bot
 
-Finish every login in the browser. Create the bot with agent-messenger and finish its setup. Then give it its avatar: the default is `assets/dori-avatar.png` in this skill, and the owner can swap in any image.
+Finish every login in the browser. Create the bot with agent-messenger and finish its setup. Then give it its avatar: the default is `assets/ragna-avatar.png` in this skill, and the owner can swap in any image.
 
 - **Telegram**: @BotFather → `/setuserpic` → pick the bot → send the image.
 - **Discord**: Developer Portal → your application → **General Information** → App Icon, and **Bot** → Icon.
@@ -51,11 +51,11 @@ Greet the owner through the bot before doing anything else.
 ## 4. Scripts
 
 ```sh
-cd skills/dori-mode/scripts && bun install && bun link    # puts `dori` on PATH
-mkdir -p ~/.dori && cp ../references/config.example.json ~/.dori/config.json
+cd skills/ragna-mode/scripts && bun install && bun link    # puts `ragna` on PATH
+mkdir -p ~/.ragna && cp ../references/config.example.json ~/.ragna/config.json
 ```
 
-Then edit `~/.dori/config.json`: at least `leadPane` (your own herdr pane, from `herdr pane current`), `laneWorkspace`, `defaultCwd`, and the two hooks if you want lane threads updated automatically. `references/scripts.md` explains every field.
+Then edit `~/.ragna/config.json`: at least `leadPane` (your own herdr pane, from `herdr pane current`), `laneWorkspace`, `defaultCwd`, and the two hooks if you want lane threads updated automatically. `references/scripts.md` explains every field.
 
 ## 5. Monitors
 
@@ -64,13 +64,13 @@ Arm these as persistent monitors in your own session:
 | Monitor | Command | Filter |
 |---|---|---|
 | inbound messages | your messenger's watch command | new owner messages |
-| done flow | `dori watch` | `^LANE_` |
-| dead panes | `dori dead-panes --loop 3` | `^DEAD_PANE` |
-| host guard | `dori guard --loop 1` | `^HOST_GUARD` |
-| freshness | `dori freshness --loop 5` | `^(NUDGED\|POSTED\|NO-REPORT)` |
-| Slack inbound (Slack only) | `dori inbound slack --loop 1` | `^INBOUND` |
-| presence (optional) | `dori presence slack` or `dori presence discord` | `^PRESENCE_READY` |
+| done flow | `ragna watch` | `^LANE_` |
+| dead panes | `ragna dead-panes --loop 3` | `^DEAD_PANE` |
+| host guard | `ragna guard --loop 1` | `^HOST_GUARD` |
+| freshness | `ragna freshness --loop 5` | `^(NUDGED\|POSTED\|NO-REPORT)` |
+| Slack inbound (Slack only) | `ragna inbound slack --loop 1` | `^INBOUND` |
+| presence (optional) | `ragna presence slack` or `ragna presence discord` | `^PRESENCE_READY` |
 
 ## 6. First look around
 
-Once the bot is live, explore the machine: running coding-agent sessions, the tools in use, recent logs. Write what you find into memory, and adopt any running lanes with `dori adopt`.
+Once the bot is live, explore the machine: running coding-agent sessions, the tools in use, recent logs. Write what you find into memory, and adopt any running lanes with `ragna adopt`.

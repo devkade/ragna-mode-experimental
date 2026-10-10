@@ -17,7 +17,7 @@ export type GuardThresholds = {
   readonly panesMax: number;
 };
 
-export type DoriConfig = {
+export type RagnaConfig = {
   readonly stateDir: string;
   readonly laneWorkspace: string;
   readonly workspaces: readonly string[];
@@ -38,8 +38,8 @@ export type DoriConfig = {
   readonly hooks: Hooks;
 };
 
-export const defaultConfig = (home = homedir()): DoriConfig => ({
-  stateDir: join(home, ".dori", "state"),
+export const defaultConfig = (home = homedir()): RagnaConfig => ({
+  stateDir: join(home, ".ragna", "state"),
   laneWorkspace: "",
   workspaces: [],
   ignorePanes: [],
@@ -59,21 +59,21 @@ export const defaultConfig = (home = homedir()): DoriConfig => ({
   hooks: {},
 });
 
-export const configPath = (): string => process.env.DORI_CONFIG ?? join(homedir(), ".dori", "config.json");
+export const configPath = (): string => process.env.RAGNA_CONFIG ?? join(homedir(), ".ragna", "config.json");
 
 export const expandHome = (path: string, home = homedir()): string => (path === "~" ? home : path.startsWith("~/") ? join(home, path.slice(2)) : path);
 
-export const loadConfig = async (path = configPath(), home = homedir()): Promise<DoriConfig> => {
+export const loadConfig = async (path = configPath(), home = homedir()): Promise<RagnaConfig> => {
   const base = defaultConfig(home);
   const file = Bun.file(path);
-  const raw = (await file.exists()) ? ((await file.json()) as Partial<DoriConfig>) : {};
-  const merged: DoriConfig = { ...base, ...raw, guard: { ...base.guard, ...raw.guard }, hooks: { ...base.hooks, ...raw.hooks } };
+  const raw = (await file.exists()) ? ((await file.json()) as Partial<RagnaConfig>) : {};
+  const merged: RagnaConfig = { ...base, ...raw, guard: { ...base.guard, ...raw.guard }, hooks: { ...base.hooks, ...raw.hooks } };
   return {
     ...merged,
-    stateDir: expandHome(process.env.DORI_STATE_DIR ?? merged.stateDir, home),
+    stateDir: expandHome(process.env.RAGNA_STATE_DIR ?? merged.stateDir, home),
     defaultCwd: expandHome(merged.defaultCwd, home),
     sessionsDir: expandHome(merged.sessionsDir, home),
-    leadPane: process.env.DORI_LEAD_PANE ?? merged.leadPane,
+    leadPane: process.env.RAGNA_LEAD_PANE ?? merged.leadPane,
   };
 };
 

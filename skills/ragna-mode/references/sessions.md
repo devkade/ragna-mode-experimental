@@ -5,7 +5,7 @@ A lane is one agent session doing one job in its own herdr tab. You launch it, t
 ## Launching
 
 ```sh
-dori launch fix-login --title "Fix the login redirect loop" \
+ragna launch fix-login --title "Fix the login redirect loop" \
   --brief ~/briefs/fix-login.md --done "merged acme/app#412; closed acme/app#398" \
   --thread "telegram:<chat>/<topic>" --model anthropic/claude-opus-5-5
 ```
@@ -53,7 +53,7 @@ One JSON file per lane under `<stateDir>/lanes/`, written atomically (temp file 
 | `status` | `working`, `done-claimed`, `verified-done`, `not-done`, `closed` |
 | `claim`, `objection`, `history` | what was claimed, what was objected, every status change |
 
-`dori sync` compares the registry with live panes and prints drift (a pane that is gone, a session id that changed, an empty `Done =` line). It never deletes anything. With `--write` it stores the session ids it found.
+`ragna sync` compares the registry with live panes and prints drift (a pane that is gone, a session id that changed, an empty `Done =` line). It never deletes anything. With `--write` it stores the session ids it found.
 
 How the session id is found for a pane, in order:
 
@@ -80,4 +80,4 @@ Exit code 0 and echoed input are not proof the agent got the message. A reply fr
 
 - Sessions that turn blocked or ask a question: answer them or bring them to the owner.
 - Sessions that report a bug: reproduce it before it counts, then give it its own thread.
-- `dori dead-panes` reports agent panes that stopped; restart the session in place (`<agent> --session <id>`) unless its work is finished.
+- `ragna dead-panes` reports agent panes that stopped; restart the session in place (`<agent> --session <id>`) unless its work is finished.

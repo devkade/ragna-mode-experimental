@@ -58,7 +58,7 @@ export const discordPresence = (open: () => GatewaySocket, token: string, clock:
     if (typeof m.s === "number") seq = m.s;
     if (m.op === 10 && m.d?.heartbeat_interval) {
       beat = clock.setInterval(() => ws.send(JSON.stringify({ op: 1, d: seq })), m.d.heartbeat_interval);
-      ws.send(JSON.stringify({ op: 2, d: { token, intents: DISCORD_INTENTS_GUILD_MESSAGES, properties: { os: process.platform, browser: "dori", device: "dori" }, presence: { status: "online", since: null, activities: [], afk: false } } }));
+      ws.send(JSON.stringify({ op: 2, d: { token, intents: DISCORD_INTENTS_GUILD_MESSAGES, properties: { os: process.platform, browser: "ragna", device: "ragna" }, presence: { status: "online", since: null, activities: [], afk: false } } }));
     }
   });
   return {

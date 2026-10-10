@@ -1,8 +1,8 @@
-import type { DoriConfig } from "./config.ts";
+import type { RagnaConfig } from "./config.ts";
 import { listPanes, readScreen } from "./panes.ts";
 import type { Runner } from "./run.ts";
 
-export const deadPaneTick = async (run: Runner, config: DoriConfig, seen: Set<string>, hourKey: string): Promise<string[]> => {
+export const deadPaneTick = async (run: Runner, config: RagnaConfig, seen: Set<string>, hourKey: string): Promise<string[]> => {
   const out: string[] = [];
   const watch = new Set(config.workspaces);
   const skip = new Set([config.leadPane, ...config.ignorePanes].filter(Boolean));

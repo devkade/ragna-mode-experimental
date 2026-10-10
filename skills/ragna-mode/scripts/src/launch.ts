@@ -28,11 +28,11 @@ export const validateLaunch = async (deps: FlowDeps, input: LaunchInput): Promis
 
 export const footer = (lane: Lane, leadPane: string): string => [
   "",
-  "## Lane footer (written by dori launch)",
+  "## Lane footer (written by ragna launch)",
   `- Key: ${lane.key}. Work thread: ${lane.thread}.`,
   `- Done = ${lane.done}. The lane closes only when every signal reads back live.`,
   `- Report to the lead at each milestone: [REPORT] ${lane.key} | <milestone|blocker|question|done> | <what, with links>, sent to pane ${leadPane || "(lead pane)"} as an argv array, never a shell string.`,
-  `- When done: dori claim-done ${lane.key} --evidence "<merge SHA, closed issue, version>". See references/done-protocol.md.`,
+  `- When done: ragna claim-done ${lane.key} --evidence "<merge SHA, closed issue, version>". See references/done-protocol.md.`,
   "",
 ].join("\n");
 

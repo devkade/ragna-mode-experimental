@@ -6,19 +6,19 @@ import { withState } from "./fakes.ts";
 
 const state = withState();
 afterEach(() => {
-  delete process.env.DORI_STATE_DIR;
+  delete process.env.RAGNA_STATE_DIR;
 });
 
 test("the shipped example config loads, with ~ paths expanded and unset fields defaulted", async () => {
   const c = await loadConfig(join(import.meta.dir, "../../references/config.example.json"), "/home/ana");
-  expect(c.stateDir).toBe("/home/ana/.dori/state");
+  expect(c.stateDir).toBe("/home/ana/.ragna/state");
   expect(c.defaultCwd).toBe("/home/ana/code/my-project");
   expect(c.closeAfterMin).toBe(5);
   expect(c.guard.diskFreeMinGb).toBe(50);
 });
 
-test("a missing config file falls back to defaults and DORI_STATE_DIR wins over the file", async () => {
-  process.env.DORI_STATE_DIR = state.dir;
+test("a missing config file falls back to defaults and RAGNA_STATE_DIR wins over the file", async () => {
+  process.env.RAGNA_STATE_DIR = state.dir;
   const c = await loadConfig("/nonexistent/config.json", "/home/ana");
   expect(c.stateDir).toBe(state.dir);
   expect(c.agentCommand).toEqual(["omo", "--model", "{model}", "{prompt}"]);

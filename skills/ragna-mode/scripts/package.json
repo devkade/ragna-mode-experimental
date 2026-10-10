@@ -1,9 +1,9 @@
 {
-  "name": "dori-mode-scripts",
+  "name": "ragna-mode-scripts",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "bin": { "dori": "./src/cli.ts" },
+  "bin": { "ragna": "./src/cli.ts" },
   "scripts": {
     "test": "bun test",
     "typecheck": "bunx tsc --noEmit"

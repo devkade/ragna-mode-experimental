@@ -22,7 +22,7 @@ import { Discord, discordPresence } from "./messenger/discord.ts";
 import { realTimers } from "./messenger/typing.ts";
 import { transcribe, TranscriptionError } from "./messenger/voice.ts";
 
-const USAGE = `dori <command> [options]
+const USAGE = `ragna <command> [options]
 
   launch <key> --title T --brief FILE --done "merged o/r#N; closed o/r#M" [--thread REF] [--model M] [--cwd DIR]
   adopt  <key> --pane ID --title T --brief FILE --done "..." [--thread REF]
@@ -37,11 +37,11 @@ const USAGE = `dori <command> [options]
   heavy <label> -- <command ...>       run a heavy command when a slot is free and load is low
   can-launch                           exit 0 if the host has room for a new lane, else print why and exit 4
   send <slack|telegram|discord> --to TARGET --text TEXT [--thread ID] [--edit ID]
-                                       post or edit a message (tokens from DORI_SLACK_TOKEN, DORI_TELEGRAM_TOKEN, DORI_DISCORD_TOKEN)
+                                       post or edit a message (tokens from RAGNA_SLACK_TOKEN, RAGNA_TELEGRAM_TOKEN, RAGNA_DISCORD_TOKEN)
   presence <slack|discord>             keep the account shown as online until stopped
   transcribe <audio-file>              run hooks.transcribe and print the text
   inbound slack [--loop MIN]           print INBOUND lines: unread thread replies (threads view), replies in threads
-                                       the Dori posted in (any helper), DMs and channels with unread mentions`;
+                                       the Ragna posted in (any helper), DMs and channels with unread mentions`;
 
 const die = (message: string, code = 1): never => {
   console.error(message);
@@ -151,7 +151,7 @@ try {
       const sep = rest.indexOf("--");
       const label = rest[0];
       const cmd = sep >= 0 ? rest.slice(sep + 1) : [];
-      if (!label || label === "--" || !cmd.length) die("usage: dori heavy <label> -- <command ...>");
+      if (!label || label === "--" || !cmd.length) die("usage: ragna heavy <label> -- <command ...>");
       const load = async () => (await sampleHost(run)).load1;
       const slot = await acquireSlot({ dir: `${config.stateDir}/heavy`, slots: config.heavySlots, maxLoad: config.heavyMaxLoad, clock: realClock, load, alive: pidAlive, pid: process.pid }, label ?? "");
       try {
@@ -175,16 +175,16 @@ try {
       const edit = opt("edit");
       const token = (name: string) => process.env[name] ?? die(`${name} is not set`);
       if (platform === "slack") {
-        const slack = new Slack(fetchHttp, realClock, { token: token("DORI_SLACK_TOKEN"), cookie: process.env.DORI_SLACK_COOKIE }, undefined, new ThreadLedger(`${config.stateDir}/slack-threads.json`));
+        const slack = new Slack(fetchHttp, realClock, { token: token("RAGNA_SLACK_TOKEN"), cookie: process.env.RAGNA_SLACK_COOKIE }, undefined, new ThreadLedger(`${config.stateDir}/slack-threads.json`));
         if (edit) await slack.edit(to, edit, text);
         else console.log(`SENT ${(await slack.post(to, text, thread)).ts}`);
       } else if (platform === "telegram") {
-        const tg = new Telegram(fetchHttp, realClock, token("DORI_TELEGRAM_TOKEN"));
+        const tg = new Telegram(fetchHttp, realClock, token("RAGNA_TELEGRAM_TOKEN"));
         const target = { chatId: to, ...(thread ? { threadId: Number(thread) } : {}) };
         if (edit) await tg.edit(target, Number(edit), text);
         else console.log(`SENT ${await tg.send(target, text)}`);
       } else if (platform === "discord") {
-        const dc = new Discord(fetchHttp, realClock, token("DORI_DISCORD_TOKEN"));
+        const dc = new Discord(fetchHttp, realClock, token("RAGNA_DISCORD_TOKEN"));
         if (edit) await dc.edit(to, edit, text);
         else console.log(`SENT ${await dc.send(thread ?? to, text)}`);
       } else die(`unknown platform ${platform}`);
@@ -192,7 +192,7 @@ try {
     }
     case "presence": {
       if (key === "slack") {
-        const auth = { token: process.env.DORI_SLACK_TOKEN ?? die("DORI_SLACK_TOKEN is not set"), cookie: process.env.DORI_SLACK_COOKIE ?? die("DORI_SLACK_COOKIE is not set (user-token presence needs the d cookie)") };
+        const auth = { token: process.env.RAGNA_SLACK_TOKEN ?? die("RAGNA_SLACK_TOKEN is not set"), cookie: process.env.RAGNA_SLACK_COOKIE ?? die("RAGNA_SLACK_COOKIE is not set (user-token presence needs the d cookie)") };
         const p = slackPresence(new Slack(fetchHttp, realClock, auth), (url, headers) => {
           const options: Bun.WebSocketOptions = { headers: { ...headers } };
           const ws = new WebSocket(url, options);
@@ -201,7 +201,7 @@ try {
         console.log("PRESENCE_READY slack");
         await every(1, async () => console.log(`PRESENCE slack ${await p.hold()}`));
       } else if (key === "discord") {
-        const token = process.env.DORI_DISCORD_TOKEN ?? die("DORI_DISCORD_TOKEN is not set");
+        const token = process.env.RAGNA_DISCORD_TOKEN ?? die("RAGNA_DISCORD_TOKEN is not set");
         discordPresence(() => {
           const ws = new WebSocket("wss://gateway.discord.gg/?v=10&encoding=json");
           let handler: (d: string) => void = () => {};
@@ -215,7 +215,7 @@ try {
     }
     case "inbound": {
       if (key !== "slack") die("inbound supports slack");
-      const auth = { token: process.env.DORI_SLACK_TOKEN ?? die("DORI_SLACK_TOKEN is not set"), cookie: process.env.DORI_SLACK_COOKIE };
+      const auth = { token: process.env.RAGNA_SLACK_TOKEN ?? die("RAGNA_SLACK_TOKEN is not set"), cookie: process.env.RAGNA_SLACK_COOKIE };
       const ledger = new ThreadLedger(`${config.stateDir}/slack-threads.json`);
       const slack = new Slack(fetchHttp, realClock, auth, undefined, ledger);
       const me = String((await slack.call("auth.test", {})).user_id ?? die("auth.test returned no user_id"));

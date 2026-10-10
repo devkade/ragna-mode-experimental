@@ -2,7 +2,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { type DoriConfig, defaultConfig } from "../src/config.ts";
+import { type RagnaConfig, defaultConfig } from "../src/config.ts";
 import type { FlowDeps } from "../src/done-flow.ts";
 import { Registry } from "../src/registry.ts";
 import type { Clock, Ran, Runner } from "../src/run.ts";
@@ -51,12 +51,12 @@ export const fakeClock = (start: number): Clock & { at: number } => {
 };
 
 export const withState = (): { dir: string; done: () => void } => {
-  const dir = mkdtempSync(join(tmpdir(), "dori-test-"));
+  const dir = mkdtempSync(join(tmpdir(), "ragna-test-"));
   return { dir, done: () => rmSync(dir, { recursive: true, force: true }) };
 };
 
-export const depsFor = (w: World, clock: Clock, stateDir: string, patch: Partial<DoriConfig> = {}): FlowDeps => {
-  const config: DoriConfig = { ...defaultConfig("/home/test"), stateDir, defaultCwd: "/repo", leadPane: "lead:p1", ...patch };
+export const depsFor = (w: World, clock: Clock, stateDir: string, patch: Partial<RagnaConfig> = {}): FlowDeps => {
+  const config: RagnaConfig = { ...defaultConfig("/home/test"), stateDir, defaultCwd: "/repo", leadPane: "lead:p1", ...patch };
   return { run: fakeRunner(w), clock, registry: new Registry(stateDir), config, exists: () => true };
 };
 

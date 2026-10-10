@@ -1,5 +1,5 @@
 {
-  "stateDir": "~/.dori/state",
+  "stateDir": "~/.ragna/state",
   "laneWorkspace": "lanes",
   "workspaces": [
     "lanes"

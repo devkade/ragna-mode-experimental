@@ -7,7 +7,7 @@ import { pollSlackInbound } from "../src/messenger/slack-inbound.ts";
 import { ThreadLedger } from "../src/messenger/thread-ledger.ts";
 import { fakeClock, withState } from "./fakes.ts";
 
-const SELF = "U_DORI";
+const SELF = "U_RAGNA";
 const state = withState();
 afterEach(() => {});
 
@@ -45,7 +45,7 @@ const setup = (name: string) => {
   return { w, slack, ledger, calls };
 };
 
-test("a guest's untagged reply in a thread the Dori started through a raw API call is still picked up", async () => {
+test("a guest's untagged reply in a thread the Ragna started through a raw API call is still picked up", async () => {
   const { w, slack, ledger } = setup("raw-root");
   const root = (await slack.call("chat.postMessage", { channel: "C1", text: "Kicking off the release checklist" })) as { ts: string };
   w.replies[`C1:${root.ts}`]?.push({ ts: "2000.000100", user: "U_GUEST", text: "the staging deploy is red" });
@@ -54,7 +54,7 @@ test("a guest's untagged reply in a thread the Dori started through a raw API ca
   expect(await pollSlackInbound(slack, ledger, { selfUserId: SELF })).toEqual([]);
 });
 
-test("a reply the Dori posts into someone else's thread also makes that thread watched, and its own messages are never inbound", async () => {
+test("a reply the Ragna posts into someone else's thread also makes that thread watched, and its own messages are never inbound", async () => {
   const { w, slack, ledger } = setup("reply");
   w.replies["C2:500.000100"] = [{ ts: "500.000100", user: "U_OWNER", text: "can you check this?" }];
   await slack.post("C2", "on it", "500.000100");
