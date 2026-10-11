@@ -24,6 +24,32 @@ test("a missing config file falls back to defaults and RAGNA_STATE_DIR wins over
   expect(c.agentCommand).toEqual(["omo", "--model", "{model}", "{prompt}"]);
 });
 
+test("gateway config stays optional and preserves reply settings", async () => {
+  const dir = await import("node:fs/promises").then((fs) => fs.mkdtemp(`${process.env.TMPDIR ?? "/tmp"}/ragna-config-`));
+  try {
+    const path = `${dir}/config.json`;
+    await Bun.write(path, JSON.stringify({ stateDir: "/tmp/ragna-state" }));
+    expect((await loadConfig(path, "/home/ana")).gateway).toBeUndefined();
+    await Bun.write(path, JSON.stringify({ gateway: { chat: { allowedUserId: "user", allowedChannelId: "channel", reply: ["messenger", "send"], replyIdPath: "message.id" } } }));
+    expect((await loadConfig(path, "/home/ana")).gateway?.chat?.replyIdPath).toBe("message.id");
+  } finally {
+    await import("node:fs/promises").then((fs) => fs.rm(dir, { recursive: true, force: true }));
+  }
+});
+
+test("gateway config stays optional and preserves reply settings", async () => {
+  const dir = await import("node:fs/promises").then((fs) => fs.mkdtemp(`${process.env.TMPDIR ?? "/tmp"}/ragna-config-`));
+  try {
+    const path = `${dir}/config.json`;
+    await Bun.write(path, JSON.stringify({ stateDir: "/tmp/ragna-state" }));
+    expect((await loadConfig(path, "/home/ana")).gateway).toBeUndefined();
+    await Bun.write(path, JSON.stringify({ gateway: { chat: { allowedUserId: "user", allowedChannelId: "channel", reply: ["messenger", "send"], replyIdPath: "message.id" } } }));
+    expect((await loadConfig(path, "/home/ana")).gateway?.chat?.replyIdPath).toBe("message.id");
+  } finally {
+    await import("node:fs/promises").then((fs) => fs.rm(dir, { recursive: true, force: true }));
+  }
+});
+
 test("hook templates fill each argument separately, so text with spaces or quotes stays one argument", () => {
   const argv = fill(["notify", "--thread", "{thread}", "--text", "{text}"], { thread: "chat:1/2", text: `it's "done"; rm -rf /` });
   expect(argv).toEqual(["notify", "--thread", "chat:1/2", "--text", `it's "done"; rm -rf /`]);

@@ -34,6 +34,9 @@ Needs: bun 1.3+, herdr, git, and the GitHub CLI (`gh`) for `merged`/`closed` sig
 | `guard` | load 150/80, 20% memory, 50 GB disk, 20 panes | `guard` |
 | `hooks.threadReply`, `hooks.threadDone` | none | `freshness`, `close` |
 | `hooks.transcribe` | none | `transcribe` (argv with `{file}`, prints the text) |
+| `gateway.<platform>` | none | request authorization and reply argv template |
+| `gateway.<platform>` | none | request authorization and reply argv template |
+| `gateway.<platform>` | none | request authorization and reply argv template |
 
 Hooks are argv templates for your messenger CLI. `{thread}`, `{text}` and `{key}` are filled into each argument separately, so the text stays one argument whatever it contains.
 
@@ -43,6 +46,9 @@ The CLI is a thin layer over typed modules you can import in your own scripts:
 
 | Module | What it gives you |
 |---|---|
+| `src/gateway.ts` | Messenger-agnostic request parsing, allowlist checks, argv reply delivery, and JSON reply-ID parsing |
+| `src/gateway.ts` | Messenger-agnostic request parsing, allowlist checks, argv reply delivery, and JSON reply-ID parsing |
+| `src/gateway.ts` | Messenger-agnostic request parsing, allowlist checks, argv reply delivery, and JSON reply-ID parsing |
 | `src/messenger/slack.ts` | `Slack`: post, edit, thread replies, file upload (upload URL + complete), presence; 429 backoff |
 | `src/messenger/telegram.ts` | `Telegram`: send, edit, typing, `sendMessageDraft` streaming with a `Thinking…` start, forum topics (create, rename, close, reopen), HTML tables |
 | `src/messenger/discord.ts` | `Discord`: send without pings, edit, typing, threads (start, rename, archive); gateway presence |
@@ -54,6 +60,18 @@ The CLI is a thin layer over typed modules you can import in your own scripts:
 | `src/routing.ts` | `canLaunch`, `idleLaneFor`: the routing checks |
 
 Every module takes its HTTP, clock and timers as arguments. That is how the tests run without the network.
+
+### Gateway request contract
+
+Ragna accepts one normalized JSON request from an external messenger CLI or operator. It does not log in, listen for events, or connect to a platform. The required fields are nonempty `platform`, `channelId`, `messageId`, `requesterId`, and `text` strings plus a boolean `bot`; `guildId` and `threadId` are optional. Requests authored by bots or with empty text are rejected.
+
+Each `gateway.<platform>` entry configures exact requester and channel IDs and a reply argv template. Placeholders are filled as individual command arguments (never through a shell); `replyIdPath` selects the JSON field that proves the messenger accepted the reply. See `config.example.json` for Discord, Slack, and Telegram examples.
+
+### Gateway request contract
+
+Ragna accepts one normalized JSON request from an external messenger CLI or operator. It does not log in, listen for events, or connect to a platform. The required fields are nonempty `platform`, `channelId`, `messageId`, `requesterId`, and `text` strings plus a boolean `bot`; `guildId` and `threadId` are optional. Requests authored by bots or with empty text are rejected.
+
+Each `gateway.<platform>` entry configures exact requester and channel IDs and a reply argv template. Placeholders are filled as individual command arguments (never through a shell); `replyIdPath` selects the JSON field that proves the messenger accepted the reply. See `config.example.json` for Discord, Slack, and Telegram examples.
 
 ## Commands
 
@@ -109,3 +127,9 @@ Runs `hooks.transcribe` and prints the transcript. A failed or empty transcripti
 
 ### `ragna heavy <label> -- <command ...>`
 Waits until load is under `heavyMaxLoad` and one of `heavySlots` is free, then runs the command and frees the slot when it exits. A slot held by a process that no longer exists (or a zombie) is taken over. Use it for full builds and test suites. Installs, focused tests and git do not need it.
+
+### Gateway request contract
+
+Ragna accepts one normalized JSON request from an external messenger CLI or operator. It does not log in, listen for events, or connect to a platform. The required fields are nonempty `platform`, `channelId`, `messageId`, `requesterId`, and `text` strings plus a boolean `bot`; `guildId` and `threadId` are optional. Requests authored by bots or with empty text are rejected.
+
+Each `gateway.<platform>` entry configures exact requester and channel IDs and a reply argv template. Placeholders are filled as individual command arguments (never through a shell); `replyIdPath` selects the JSON field that proves the messenger accepted the reply. See `config.example.json` for Discord, Slack, and Telegram examples.

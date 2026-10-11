@@ -57,6 +57,10 @@ mkdir -p ~/.ragna && cp ../references/config.example.json ~/.ragna/config.json
 
 Then edit `~/.ragna/config.json`: at least `leadPane` (your own herdr pane, from `herdr pane current`), `laneWorkspace`, `defaultCwd`, and the two hooks if you want lane threads updated automatically. `references/scripts.md` explains every field.
 
+An external messenger CLI or operator supplies normalized request JSON to `ragna request`. Ragna does not log in or open a messenger connection. Configure requester/channel allowlists and the per-platform reply argv in `gateway`; see `scripts.md` for the contract.
+
+An external messenger CLI or operator supplies normalized request JSON to `ragna request`. Ragna does not log in or open a messenger connection. Configure requester/channel allowlists and the per-platform reply argv in `gateway`; see `scripts.md` for the contract.
+
 ## 5. Monitors
 
 Arm these as persistent monitors in your own session:

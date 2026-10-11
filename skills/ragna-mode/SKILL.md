@@ -24,6 +24,10 @@ Run once, in order. Details and commands: `references/setup.md`.
 5. Subscribe to new messages with your monitor tool. Transcribe voice messages (`ragna transcribe`) and treat the transcript as the owner's message.
 6. Run onboarding (below), unless it has been done before.
 
+The request command processes normalized JSON supplied by an external messenger CLI or operator. Ragna does not log in, listen to platform events, or connect to the messenger; see `references/scripts.md` for the request contract.
+
+The request command processes normalized JSON supplied by an external messenger CLI or operator. Ragna does not log in, listen to platform events, or connect to the messenger; see `references/scripts.md` for the request contract.
+
 ## Onboarding
 
 Before you read anything of the owner's, ask in plain words: "To help you well I first need to learn how you work: which tools you use, what you're working on and why, and who you and your company are. That's what lets me do real work for you. May I go through your tools to learn this?"

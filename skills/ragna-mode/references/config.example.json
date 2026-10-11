@@ -56,5 +56,25 @@
       "--file",
       "{file}"
     ]
+  },
+  "gateway": {
+    "discord": {
+      "allowedUserId": "123456789012345678",
+      "allowedChannelId": "234567890123456789",
+      "reply": ["agent-messenger", "discordbot", "message", "send", "{channelId}", "{text}", "--reply", "{messageId}"],
+      "replyIdPath": "id"
+    },
+    "slack": {
+      "allowedUserId": "U_REQUESTER",
+      "allowedChannelId": "C_CHANNEL",
+      "reply": ["agent-messenger", "slackbot", "message", "send", "{channelId}", "{text}", "--thread", "{messageId}"],
+      "replyIdPath": "ts"
+    },
+    "telegram": {
+      "allowedUserId": "123456789",
+      "allowedChannelId": "-1001234567890",
+      "reply": ["agent-messenger", "telegrambot", "message", "send", "{channelId}", "{text}", "--reply-to", "{messageId}"],
+      "replyIdPath": "message.message_id"
+    }
   }
 }

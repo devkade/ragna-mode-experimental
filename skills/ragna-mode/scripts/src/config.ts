@@ -9,6 +9,13 @@ export type Hooks = {
   readonly transcribe?: ArgvTemplate;
 };
 
+export type GatewayConfig = Readonly<Record<string, {
+  readonly allowedUserId: string;
+  readonly allowedChannelId: string;
+  readonly reply: ArgvTemplate;
+  readonly replyIdPath?: string;
+}>>;
+
 export type GuardThresholds = {
   readonly loadAlert: number;
   readonly loadOk: number;
@@ -36,6 +43,7 @@ export type RagnaConfig = {
   readonly deadPanePatterns: readonly string[];
   readonly guard: GuardThresholds;
   readonly hooks: Hooks;
+  readonly gateway?: GatewayConfig;
 };
 
 export const defaultConfig = (home = homedir()): RagnaConfig => ({

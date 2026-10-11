@@ -120,6 +120,17 @@ test("Discord reply references the source message and suppresses mentions", asyn
   });
 });
 
+test("Discord replies reference the source message and suppress mentions", async () => {
+  const { http, seen } = fakeHttp(() => ok({ id: "R1" }));
+  const id = await new Discord(http, sleeps().clock, "b").reply("C1", "request-7", "answer");
+  expect(id).toBe("R1");
+  expect(JSON.parse(String(seen[0]?.body))).toEqual({
+    content: "answer",
+    message_reference: { message_id: "request-7", fail_if_not_exists: true },
+    allowed_mentions: { parse: [] },
+  });
+});
+
 test("the typing indicator is sent at once, repeats while work runs, and stops when it ends even on failure", async () => {
   const sent: number[] = [];
   const t = fakeTimers();
