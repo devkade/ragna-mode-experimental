@@ -69,12 +69,6 @@ Each `gateway.<platform>` entry configures exact requester and channel IDs and a
 
 Pi Durable stores the source request, turn result, send attempt, and observed acceptance in `<stateDir>/gateway-traces`. An acceptance means the messenger returned a message ID, not that a human read it. Failed or uncertain sends are not automatically retried.
 
-### Gateway request contract
-
-Ragna accepts one normalized JSON request from an external messenger CLI or operator. It does not log in, listen for events, or connect to a platform. The required fields are nonempty `platform`, `channelId`, `messageId`, `requesterId`, and `text` strings plus a boolean `bot`; `guildId` and `threadId` are optional. Requests authored by bots or with empty text are rejected.
-
-Each `gateway.<platform>` entry configures exact requester and channel IDs and a reply argv template. Placeholders are filled as individual command arguments (never through a shell); `replyIdPath` selects the JSON field that proves the messenger accepted the reply. See `config.example.json` for Discord, Slack, and Telegram examples.
-
 ## Commands
 
 ### `ragna launch <key> --title T --brief FILE --done "..." [--thread REF] [--model M] [--cwd DIR]`
@@ -123,6 +117,18 @@ Prints `INBOUND <source> <channel> <thread> <ts> <user> <text>`. It reads from t
 - `unread`: DMs, group DMs and channels with unread mentions.
 
 The Ragna's own messages and bot messages are skipped. Every message the Ragna posts records its thread in `<stateDir>/slack-threads.json`, whichever helper sends it, so a guest's untagged reply under a root posted with a raw API call is still found.
+
+### `ragna request --file FILE`
+
+Processes one normalized messenger request; `--file -` reads JSON from stdin. Authentication, transport connections, and event collection belong to the external messenger CLI or operator. Ragna accepts requests from any platform without logging in or listening for events.
+
+The request requires nonempty `platform`, `channelId`, `messageId`, `requesterId`, and `text` strings plus a boolean `bot`; `guildId` and `threadId` are optional. IDs remain strings, including numeric Telegram IDs and Slack timestamps. Bot-authored requests, unknown platforms, and requests whose requester or channel does not exactly match the configured strings are rejected before Pi initialization or sending.
+
+Each `gateway.<platform>` entry supplies `allowedUserId`, `allowedChannelId`, and `reply` as an argv array. Placeholders are filled as individual arguments without shell evaluation; referencing an absent optional field fails before the turn starts. `replyIdPath` selects the JSON field that proves the messenger accepted the reply. See `config.example.json` for platform examples.
+
+`gatewayModel.provider` and `gatewayModel.model` select the Pi model from its provider catalog. Model endpoints and credentials remain in that catalog; unsupported APIs and missing selections are configuration errors, not fallbacks.
+
+Pi Durable stores the turn input, source references, send attempt, and observed acceptance in `<stateDir>/gateway-traces`. Success prints `{platform,channelId,messageId,response,id}` as JSON, where `id` is the accepted reply ID. An acceptance means the messenger returned a message ID, not that a human read it. Failed or uncertain sends are not automatically retried. This boundary does not provide a daemon, event normalization, duplicate suppression, or restart recovery. SIGINT and SIGTERM abort the active turn, wait for it to settle, and close the durable store before exiting with code 130.
 
 ### `ragna transcribe <audio-file>`
 Runs `hooks.transcribe` and prints the transcript. A failed or empty transcription is an error, never an empty message.

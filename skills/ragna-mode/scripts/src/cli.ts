@@ -19,8 +19,10 @@ import { ThreadLedger } from "./messenger/thread-ledger.ts";
 import { slackPresence } from "./messenger/slack-presence.ts";
 import { Telegram } from "./messenger/telegram.ts";
 import { Discord, discordPresence } from "./messenger/discord.ts";
+import { createPiDurableTurn } from "./messenger/pi-durable-turn.ts";
 import { realTimers } from "./messenger/typing.ts";
 import { transcribe, TranscriptionError } from "./messenger/voice.ts";
+import { authorizeGatewayRequest, deliverGatewayReply, parseGatewayRequest, readGatewayRequest, validateGatewayReplyTemplate } from "./gateway.ts";
 
 const USAGE = `ragna <command> [options]
 
@@ -40,6 +42,7 @@ const USAGE = `ragna <command> [options]
                                        post or edit a message (tokens from RAGNA_SLACK_TOKEN, RAGNA_TELEGRAM_TOKEN, RAGNA_DISCORD_TOKEN)
   presence <slack|discord>             keep the account shown as online until stopped
   transcribe <audio-file>              run hooks.transcribe and print the text
+  request --file FILE                  process one authorized gateway request (FILE may be - for stdin)
   inbound slack [--loop MIN]           print INBOUND lines: unread thread replies (threads view), replies in threads
                                        the Ragna posted in (any helper), DMs and channels with unread mentions`;
 
@@ -61,6 +64,7 @@ const flags = parseArgs({
     model: { type: "string" }, cwd: { type: "string" }, pane: { type: "string" }, evidence: { type: "string" },
     reason: { type: "string", multiple: true }, note: { type: "string" }, write: { type: "boolean" }, loop: { type: "string" },
     to: { type: "string" }, text: { type: "string" }, edit: { type: "string" },
+    file: { type: "string" },
   },
 });
 const opt = (name: string): string | undefined => {
@@ -223,6 +227,48 @@ try {
       await every(loopMin, async () => {
         for (const i of await pollSlackInbound(slack, ledger, { selfUserId: me })) console.log(`INBOUND ${i.source} ${i.channel} ${i.threadTs ?? "-"} ${i.ts || "-"} ${i.user ?? "-"} ${JSON.stringify((i.text ?? "").slice(0, 200))}`);
       });
+      break;
+    }
+    case "request": {
+      const file = opt("file") ?? die("request needs --file FILE (or - for stdin)");
+      const request = parseGatewayRequest(await readGatewayRequest(file)) ?? die("request JSON is malformed, from a bot, or has empty text", 4);
+      const gateway = authorizeGatewayRequest(request, config.gateway ?? {}) ?? die("request is not authorized", 4);
+      validateGatewayReplyTemplate(request, gateway.reply);
+      const modelConfig = config.gatewayModel ?? die("gatewayModel provider and model must be configured", 4);
+      const turn = await createPiDurableTurn(config.stateDir, modelConfig);
+      let shuttingDown = false;
+      let shutdown!: () => void;
+      const interrupted = new Promise<void>((resolve) => { shutdown = resolve; });
+      const onSignal = () => {
+        if (shuttingDown) return;
+        shuttingDown = true;
+        shutdown();
+        void (async () => {
+          await turn.abort();
+          await turn.waitForTurn();
+          await turn.close();
+          process.exitCode = 130;
+        })();
+      };
+      process.once("SIGINT", onSignal);
+      process.once("SIGTERM", onSignal);
+      try {
+        const outcome = await Promise.race([
+          (async () => {
+            const response = await turn.run(request);
+            await turn.recordDelivery(request, "attempt", response);
+            const id = await deliverGatewayReply(request, response, gateway, run);
+            await turn.recordDelivery(request, "accepted", response, id);
+            return { platform: request.platform, channelId: request.channelId, messageId: request.messageId, response, id };
+          })(),
+          interrupted.then(() => undefined),
+        ]);
+        if (outcome) console.log(JSON.stringify(outcome));
+      } finally {
+        process.removeListener("SIGINT", onSignal);
+        process.removeListener("SIGTERM", onSignal);
+        if (!shuttingDown) await turn.close();
+      }
       break;
     }
     case "transcribe":
