@@ -59,8 +59,6 @@ Then edit `~/.ragna/config.json`: at least `leadPane` (your own herdr pane, from
 
 An external messenger CLI or operator supplies normalized request JSON to `ragna request`. Ragna does not log in or open a messenger connection. Configure requester/channel allowlists and the per-platform reply argv in `gateway`; see `scripts.md` for the contract.
 
-An external messenger CLI or operator supplies normalized request JSON to `ragna request`. Ragna does not log in or open a messenger connection. Configure requester/channel allowlists and the per-platform reply argv in `gateway`; see `scripts.md` for the contract.
-
 ## 5. Monitors
 
 Arm these as persistent monitors in your own session:
