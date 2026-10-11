@@ -109,6 +109,17 @@ test("Discord messages are sent without pinging anyone and edited in place; thre
   expect(seen.map((r) => `${r.method} ${r.url.replace("https://discord.com/api/v10", "")}`)).toEqual(["POST /channels/C1/messages", "PATCH /channels/C1/messages/M1", "POST /channels/C1/messages/M1/threads", "PATCH /channels/T1"]);
 });
 
+test("Discord reply references the source message and suppresses mentions", async () => {
+  const { http, seen } = fakeHttp(() => ok({ id: "R1" }));
+  const id = await new Discord(http, sleeps().clock, "b").reply("C1", "request-7", "answer");
+  expect(id).toBe("R1");
+  expect(JSON.parse(String(seen[0]?.body))).toEqual({
+    content: "answer",
+    message_reference: { message_id: "request-7", fail_if_not_exists: true },
+    allowed_mentions: { parse: [] },
+  });
+});
+
 test("the typing indicator is sent at once, repeats while work runs, and stops when it ends even on failure", async () => {
   const sent: number[] = [];
   const t = fakeTimers();

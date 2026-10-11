@@ -28,6 +28,14 @@ export class Discord {
     return (await this.call<{ id: string }>("POST", `/channels/${channelId}/messages`, { content: guardText(content), allowed_mentions: { parse: [] } })).id;
   }
 
+  async reply(channelId: string, messageId: string, content: string): Promise<string> {
+    return (await this.call<{ id: string }>("POST", `/channels/${channelId}/messages`, {
+      content: guardText(content),
+      message_reference: { message_id: messageId, fail_if_not_exists: true },
+      allowed_mentions: { parse: [] },
+    })).id;
+  }
+
   async edit(channelId: string, messageId: string, content: string): Promise<void> {
     await this.call("PATCH", `/channels/${channelId}/messages/${messageId}`, { content: guardText(content) });
   }
