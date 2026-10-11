@@ -76,5 +76,10 @@
       "reply": ["agent-messenger", "telegrambot", "message", "send", "{channelId}", "{text}", "--reply-to", "{messageId}"],
       "replyIdPath": "message.message_id"
     }
+  },
+  "gatewayModel": {
+    "provider": "<provider ID from models.json>",
+    "model": "<model ID from that provider>",
+    "modelsPath": "~/.pi/agent/models.json"
   }
 }

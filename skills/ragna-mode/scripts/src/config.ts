@@ -16,6 +16,12 @@ export type GatewayConfig = Readonly<Record<string, {
   readonly replyIdPath?: string;
 }>>;
 
+export type GatewayModelConfig = {
+  readonly provider: string;
+  readonly model: string;
+  readonly modelsPath?: string;
+};
+
 export type GuardThresholds = {
   readonly loadAlert: number;
   readonly loadOk: number;
@@ -44,6 +50,7 @@ export type RagnaConfig = {
   readonly guard: GuardThresholds;
   readonly hooks: Hooks;
   readonly gateway?: GatewayConfig;
+  readonly gatewayModel?: GatewayModelConfig;
 };
 
 export const defaultConfig = (home = homedir()): RagnaConfig => ({
